@@ -162,6 +162,37 @@ app.get('/tarefas', async (request, reply) => {
     }
 });
 
+app.post('/tarefas', async (request, reply) => {
+    try {
+        const { descricao } = request.body as { descricao: string };
+        if (!descricao || descricao.trim() === "") {
+            return reply.status(400).send({ mensagem: "Descrição é obrigatória" });
+        }
+
+        const conn = await mysql.createConnection(config);
+        await conn.query("INSERT INTO tarefas (descricao) VALUES (?)", [descricao]);
+        reply.status(201).send({ mensagem: "Tarefa cadastrada com sucesso" });
+    } catch (erro: any) {
+        tratarErroMySQL(erro, reply);
+    }
+});
+//atualizao minha nova 
+app.delete('/tarefas/:id', async (request, reply) => {
+    try {
+        const { id } = request.params as { id: string };
+        const conn = await mysql.createConnection(config);
+        
+        const [result] = await conn.query("DELETE FROM tarefas WHERE id = ?", [id]);
+
+        if ((result as any).affectedRows === 0) {
+            return reply.status(404).send({ mensagem: "Tarefa não encontrada" });
+        }
+
+        reply.status(200).send({ mensagem: "Tarefa excluída com sucesso" });
+    } catch (erro: any) {
+        tratarErroMySQL(erro, reply);
+    }
+});
 
 // Função para citar os erros 
 function tratarErroMySQL(erro: any, reply: any) {
