@@ -3,39 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <title>Lista de Tarefas</title>
+</style>
 </head>
 <body>
-    <h1>Minhas aulas</h1>
+  <h1>Minhas aulas</h1>
+  <input type="text" id="tarefa" placeholder="Digite a tarefa" />
+  <button onclick="adicionarTarefa()">Adicionar</button>
 
-    <form id="formTarefa">
-        <input type="text" id="descricao" placeholder="Digite a tarefa" required>
-        <button type="submit">Adicionar</button>
-    </form>
+  <ul id="listaTarefas"></ul>
+  <p>
+    <a href="cadastro.html">Ir para Cadastro</a> |
+    <a href="disciplina.html">Ir para Disciplina</a>
+  </p>
 
-    <ul id="ListaTarefas"></ul>
-<script>
-    async function buscaDados(){
-        const resposta = await fetch("http://localhost:8000/tarefas")
-        const ul = document.getElementById("ListaTarefas")
-        ul.innerHTML = "";
+  <script>
+    const input = document.querySelector("input");
+    const ul = document.querySelector("ul");
 
-        if(resposta.status === 200){
-            const dados = await resposta.json()
-            dados.forEach(tarefa => {
-                const li = document.createElement("li")
-                li.innerText = tarefa.descricao
-                li.style.marginBottom = "8px"
-
-
-                li.appendChild(document.createTextNode(" "));
-                ul.appendChild(li);
-            })
-        } else {
-            alert("Erro ao buscar tarefas")
+    function adicionarTarefa() {
+        const texto = input.value.trim();
+        if (texto !== "") {
+            const li = document.createElement("li");
+            li.textContent = texto;
+            ul.appendChild(li);
+            input.value = "";
         }
     }
 
-    buscaDados();
-    </script>
+    document.querySelector("button").addEventListener("click", adicionarTarefa);
+</script>
 </body>
 </html>

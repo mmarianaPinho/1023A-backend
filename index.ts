@@ -176,6 +176,32 @@ app.post('/tarefas', async (request, reply) => {
         tratarErroMySQL(erro, reply);
     }
 });
+
+app.post('/disciplinas', async (request, reply) => {
+    try {
+        const { materia, professor, curso } = request.body as { materia: string, professor: string, curso: string };
+
+        if (!materia || !professor || !curso) {
+            return reply.status(400).send({ mensagem: "Todos os campos são obrigatórios" });
+        }
+
+        const conn = await mysql.createConnection(config);
+        await conn.query("INSERT INTO disciplinas (materia, professor, curso) VALUES (?, ?, ?)", [materia, professor, curso]);
+        reply.status(201).send({ mensagem: "Disciplina cadastrada com sucesso" });
+    } catch (erro: any) {
+        tratarErroMySQL(erro, reply);
+    }
+});
+app.get('/disciplinas', async (request, reply) => {
+    try {
+        const conn = await mysql.createConnection(config);
+        const [dados] = await conn.query("SELECT * FROM disciplinas");
+        reply.status(200).send(dados);
+    } catch (erro: any) {
+        tratarErroMySQL(erro, reply);
+    }
+});
+
  
 
 // Função para citar os erros 
