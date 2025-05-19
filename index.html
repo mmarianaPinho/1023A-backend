@@ -12,12 +12,12 @@
         <button type="submit">Adicionar</button>
     </form>
 
-    <ul id="listaTarefas"></ul>
+    <ul id="ListaTarefas"></ul>
 <script>
     async function buscaDados(){
         const resposta = await fetch("http://localhost:8000/tarefas")
-        const ul = document.getElementById("listarTarefas")
-        ul.innerHTML = ""
+        const ul = document.getElementById("ListaTarefas")
+        ul.innerHTML = "";
 
         if(resposta.status === 200){
             const dados = await resposta.json()
@@ -26,36 +26,16 @@
                 li.innerText = tarefa.descricao
                 li.style.marginBottom = "8px"
 
-                // Botão de excluir
-                const botaoExcluir = document.createElement("button")
-                botaoExcluir.innerText = "Excluir"
-                botaoExcluir.onclick = async () => {
-                    const confirmacao = confirm("Tem certeza que quer excluir?")
-                    if(confirmacao){
-                        const res = await fetch(`http://localhost:8000/tarefas`, {
-                            method: "DELETE"
-                        })
-                        if(res.status === 200){
-                            buscaDados()
-                        }else{
-                            alert("Erro ao excluir a tarefa")
-                        }
-                    }
-                }
 
-                li.appendChild(document.createTextNode(" ")) // espaço
-                li.appendChild(botaoExcluir)
-                ul.appendChild(li)
+                li.appendChild(document.createTextNode(" "));
+                ul.appendChild(li);
             })
         } else {
             alert("Erro ao buscar tarefas")
         }
     }
 
-    buscaDados()
-
-
-        carregarTarefas();
+    buscaDados();
     </script>
 </body>
 </html>

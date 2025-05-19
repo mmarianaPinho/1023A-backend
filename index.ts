@@ -176,23 +176,7 @@ app.post('/tarefas', async (request, reply) => {
         tratarErroMySQL(erro, reply);
     }
 });
-//atualizao minha nova 
-app.delete('/tarefas/:id', async (request, reply) => {
-    try {
-        const { id } = request.params as { id: string };
-        const conn = await mysql.createConnection(config);
-        
-        const [result] = await conn.query("DELETE FROM tarefas WHERE id = ?", [id]);
-
-        if ((result as any).affectedRows === 0) {
-            return reply.status(404).send({ mensagem: "Tarefa não encontrada" });
-        }
-
-        reply.status(200).send({ mensagem: "Tarefa excluída com sucesso" });
-    } catch (erro: any) {
-        tratarErroMySQL(erro, reply);
-    }
-});
+ 
 
 // Função para citar os erros 
 function tratarErroMySQL(erro: any, reply: any) {
@@ -213,7 +197,7 @@ function tratarErroMySQL(erro: any, reply: any) {
         reply.status(400).send({ mensagem: "ERRO: Você tem um erro de escrita em sua QUERY (verifique vírgulas, parênteses, nomes...)" });
     } else {
         console.log("ERRO DESCONHECIDO:", erro);
-        reply.status(500).send({ mensagem: "ERRO: NÃO IDENTIFICADO" });
+        reply.status(404).send({ mensagem: "ERRO: NÃO IDENTIFICADO" });
     }
 }
 
