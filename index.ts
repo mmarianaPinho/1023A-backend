@@ -164,13 +164,18 @@ app.get('/tarefas', async (request, reply) => {
 
 app.post('/tarefas', async (request, reply) => {
     try {
-        const { descricao } = request.body as { descricao: string };
+        const { descricao, prazoInicial, prazoFinal } = request.body as {
+            descricao: string;
+            prazoInicial: string;
+            prazoFinal: string;
+        };
+
         if (!descricao || descricao.trim() === "") {
             return reply.status(400).send({ mensagem: "Descrição é obrigatória" });
         }
 
         const conn = await mysql.createConnection(config);
-        await conn.query("INSERT INTO tarefas (descricao) VALUES (?)", [descricao]);
+        await conn.query("INSERT INTO tarefas (descricao, prazoInicial, prazoFinal) VALUES (?, ?, ?)",[descricao, prazoInicial, prazoFinal]);
         reply.status(201).send({ mensagem: "Tarefa cadastrada com sucesso" });
     } catch (erro: any) {
         tratarErroMySQL(erro, reply);

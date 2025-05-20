@@ -2,48 +2,79 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Cadastrar Tarefa</title>
+    <title>Cadastro de Tarefas</title>
 </head>
 <body>
-    <h1>Cadastro de Tarefa</h1>
+    <h1>Cadastro de Tarefas</h1>
 
-    <form id="formCadastro">
-        <label for="descricao">Descrição:</label>
-        <input type="text" id="descricao" required><br><br>
-
+    <form id="formTarefa">
+        <input type="text" id="descricao" placeholder="Descrição da tarefa" required>
+        <input type="text" id="prazoInicial" placeholder="Prazo inicial (ex: 20/05)" required>
+        <input type="text" id="prazoFinal" placeholder="Prazo final (ex: 25/05)" required>
         <button type="submit">Cadastrar</button>
     </form>
 
-    <script>
-        
-        async function buscarDados(){
-                const inputDescricao = document.getElementById("descricao");
-                const descricao = inputDescricao.value;
+    <h2>Lista de Tarefas</h2>
+    <ul id="listaTarefas"></ul>
 
-                const objdescricao= {  descricao}
-                try{
-                     const resposta = await fetch("http://localhost:8000/tarefas",{
-                    headers:{
-                        'Content-Type': 'application/json'
-                    },
-                    method:"POST",
-                    body: JSON.stringify(objdescricao)
-                })
-                if(resposta.status===200){
-                    alert("Estudante cadastrado com sucesso!")
+    <script>
+        const form = document.getElementById("formTarefa");
+        const lista = document.getElementById("listaTarefas");
+
+        async function carregarTarefas() {
+            try {
+                const resposta = await fetch("http://localhost:8000/tarefas");
+                if (!resposta.ok) {
+                    throw new Error("Erro ao carregar tarefas");
                 }
-                if(resposta.status===400){
-                    const dados= await resposta.json()
-                    alert(`Erro do lado do backend:"\n ${dados.mensagem}`)
-                }
-                if(resposta.status===404){
-                    alert("Erro nao identificado")
-                }
-                } catch(erro){
-                    alert("Erro: Erro na requisição do FETCH\n" + "Você ligou o BACKEND com npm run dev?")
-                }
-               
+                const tarefas = await resposta.json();
+                lista.innerHTML = "";
+                tarefas.forEach(tarefa => {
+                    const li = document.createElement("li");
+                    li.textContent = `Descrição: ${tarefa.descricao}, Início: ${tarefa.prazoInicial ?? 'não definido'}, Fim: ${tarefa.prazoFinal ?? 'não definido'}`;
+                    lista.appendChild(li);
+                });
+            } catch (erro) {
+                console.error("Erro ao buscar tarefas:", erro);
             }
+        }
+
+        form.onsubmit = async (event) => {
+            event.preventDefault();
+
+            const descricao = document.getElementById("descricao").value.trim();
+            const prazoInicial = document.getElementById("prazoInicial").value;
+            const prazoFinal = document.getElementById("prazoFinal").value;
+
+            if (!descricao) {
+                alert("A descrição é obrigatória!");
+                return;
+            }
+
+            try {
+                const resposta = await fetch("http://localhost:8000/tarefas", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ descricao, prazoInicial, prazoFinal })
+                });
+
+                if (resposta.status === 201) {
+                    alert("Tarefa cadastrada com sucesso!");
+                    form.reset();
+                    carregarTarefas();
+                } else {
+                    const erro = await resposta.json();
+                    alert(erro.mensagem || "Erro ao cadastrar a tarefa.");
+                }
+            } catch (erro) {
+                alert("Erro na conexão com o servidor.");
+                console.error(erro);
+            }
+        };
+
+        carregarTarefas();
     </script>
 </body>
 </html>
