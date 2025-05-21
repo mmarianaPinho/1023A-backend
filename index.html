@@ -2,35 +2,68 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Lista de Tarefas</title>
-</style>
+    <title>Gerenciador de Tarefas e Disciplinas</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Minhas aulas</h1>
-  <input type="text" id="tarefa" placeholder="Digite a tarefa" />
-  <button onclick="adicionarTarefa()">Adicionar</button>
 
-  <ul id="listaTarefas"></ul>
-  <p>
-    <a href="cadastro.html">Ir para Cadastro</a> |
-    <a href="disciplina.html">Ir para Disciplina</a>
-  </p>
+    <div class="button-container">
+        <a href="cadastro.html">Ir para Cadastro de Tarefas</a>
+        <a href="disciplina.html">Ir para Cadastro de Disciplinas</a>
+    </div>
 
-  <script>
-    const input = document.querySelector("input");
-    const ul = document.querySelector("ul");
+    <h1>Minhas Tarefas e Disciplinas</h1>
 
-    function adicionarTarefa() {
-        const texto = input.value.trim();
-        if (texto !== "") {
-            const li = document.createElement("li");
-            li.textContent = texto;
-            ul.appendChild(li);
-            input.value = "";
+    <div class="container">
+        <h2>Tarefas Cadastradas</h2>
+        <table id="tabelaTarefas">
+            <tr>
+                <th>Descrição</th>
+                <th>Início</th>
+                <th>Fim</th>
+            </tr>
+        </table>
+
+        <h2>Disciplinas Cadastradas</h2>
+        <table id="tabelaDisciplinas">
+            <tr>
+                <th>Matéria</th>
+                <th>Professor</th>
+                <th>Curso</th>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        async function carregarTarefas() {
+            const resposta = await fetch("http://localhost:8000/tarefas");
+            const tarefas = await resposta.json();
+            const tabela = document.getElementById("tabelaTarefas");
+            tabela.innerHTML = "<tr><th>Descrição</th><th>Início</th><th>Fim</th></tr>";
+
+            tarefas.forEach(tarefa => {
+                const linha = document.createElement("tr");
+                linha.innerHTML = `<td>${tarefa.descricao}</td><td>${tarefa.prazoInicial ?? 'não definido'}</td><td>${tarefa.prazoFinal ?? 'não definido'}</td>`;
+                tabela.appendChild(linha);
+            });
         }
-    }
 
-    document.querySelector("button").addEventListener("click", adicionarTarefa);
-</script>
+        async function carregarDisciplinas() {
+            const resposta = await fetch("http://localhost:8000/disciplinas");
+            const disciplinas = await resposta.json();
+            const tabela = document.getElementById("tabelaDisciplinas");
+            tabela.innerHTML = "<tr><th>Matéria</th><th>Professor</th><th>Curso</th></tr>";
+
+            disciplinas.forEach(d => {
+                const linha = document.createElement("tr");
+                linha.innerHTML = `<td>${d.materia}</td><td>${d.professor}</td><td>${d.curso}</td>`;
+                tabela.appendChild(linha);
+            });
+        }
+
+        carregarTarefas();
+        carregarDisciplinas();
+    </script>
+
 </body>
 </html>
