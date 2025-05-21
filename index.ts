@@ -170,8 +170,8 @@ app.post('/tarefas', async (request, reply) => {
             prazoFinal: string;
         };
 
-        if (!descricao || descricao.trim() === "") {
-            return reply.status(400).send({ mensagem: "Descrição é obrigatória" });
+        if (!descricao || !prazoInicial || !prazoFinal) {
+            return reply.status(400).send({ mensagem: "Todos os campos são obrigatórios!" });
         }
 
         const conn = await mysql.createConnection(config);
@@ -186,8 +186,8 @@ app.post('/disciplinas', async (request, reply) => {
     try {
         const { materia, professor, curso } = request.body as { materia: string, professor: string, curso: string };
 
-        if (!materia || !professor || !curso) {
-            return reply.status(400).send({ mensagem: "Todos os campos são obrigatórios" });
+         if (!materia || !professor || !curso) {
+            return reply.status(400).send({ mensagem: "Todos os campos são obrigatórios!" });
         }
 
         const conn = await mysql.createConnection(config);

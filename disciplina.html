@@ -2,15 +2,16 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Disciplinas</title>
+    <title>Cadastro de Disciplinas</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>Cadastro de Disciplinas</h1>
 
     <form id="formDisciplina">
-        <input type="text" id="materia" placeholder="Matéria" required>
-        <input type="text" id="professor" placeholder="Professor" required>
-        <input type="text" id="curso" placeholder="Curso" required>
+        <input type="text" id="materia" placeholder="Matéria">
+        <input type="text" id="professor" placeholder="Professor">
+        <input type="text" id="curso" placeholder="Curso">
         <button type="submit">Cadastrar</button>
     </form>
 
@@ -18,41 +19,60 @@
     <ul id="listaDisciplinas"></ul>
 
     <script>
-        const form = document.getElementById('formDisciplina');
-        const lista = document.getElementById('listaDisciplinas');
+        const form = document.getElementById("formDisciplina");
+        const lista = document.getElementById("listaDisciplinas");
 
         async function carregarDisciplinas() {
-            const resposta = await fetch('http://localhost:8000/disciplinas');
-            const dados = await resposta.json();
-
-            lista.innerHTML = '';
-            dados.forEach(d => {
-                const li = document.createElement('li');
-                li.textContent = `Matéria: ${d.materia}, Professor: ${d.professor}, Curso: ${d.curso}`;
-                lista.appendChild(li);
-            });
+            try {
+                const resposta = await fetch("http://localhost:8000/disciplinas");
+                if (!resposta.ok) {
+                    throw new Error("Erro ao carregar disciplinas");
+                }
+                const disciplinas = await resposta.json();
+                lista.innerHTML = "";
+                disciplinas.forEach(disciplina => {
+                    const li = document.createElement("li");
+                    li.textContent = `Matéria: ${disciplina.materia}, Professor: ${disciplina.professor}, Curso: ${disciplina.curso}`;
+                    lista.appendChild(li);
+                });
+            } catch (erro) {
+                console.error("Erro ao buscar disciplinas:", erro);
+            }
         }
 
         form.onsubmit = async (event) => {
             event.preventDefault();
 
-            const materia = document.getElementById('materia').value;
-            const professor = document.getElementById('professor').value;
-            const curso = document.getElementById('curso').value;
+            const materia = document.getElementById("materia").value.trim();
+            const professor = document.getElementById("professor").value.trim();
+            const curso = document.getElementById("curso").value.trim();
 
-            const resposta = await fetch('http://localhost:8000/disciplinas', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ materia, professor, curso })
-            });
+            // ⚠️ Validação personalizada para evitar erro do navegador
+            if (!materia || !professor || !curso) {
+                alert("⚠️ Todos os campos são obrigatórios! Preencha tudo antes de cadastrar.");
+                return; // Impede o envio da disciplina
+            }
 
-            if (resposta.status === 201) {
-                alert("Disciplina cadastrada com sucesso!");
-                carregarDisciplinas();
-                form.reset();
-            } else {
-                const erro = await resposta.json();
-                alert(erro.mensagem);
+            try {
+                const resposta = await fetch("http://localhost:8000/disciplinas", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ materia, professor, curso })
+                });
+
+                if (resposta.status === 201) {
+                    alert("✅ Disciplina cadastrada com sucesso!");
+                    form.reset();
+                    carregarDisciplinas();
+                } else {
+                    const erro = await resposta.json();
+                    alert(erro.mensagem || "❌ Erro ao cadastrar a disciplina.");
+                }
+            } catch (erro) {
+                alert("❌ Erro na conexão com o servidor.");
+                console.error(erro);
             }
         };
 
